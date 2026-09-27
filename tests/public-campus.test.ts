@@ -589,5 +589,62 @@ describe("public campus intelligence adapter", () => {
       expect(value.gapPlan.assessment.primary.title).toBe("Lunch fits comfortably");
       expect(formatPublicGapPlan(value.gapPlan)).toContain("leave by 12:50");
     });
+
+    it("filters and searches campus residences with verified category", async () => {
+      const residenceBuilding: PublicBuilding = {
+        code: "OPH",
+        name: "Oscar Peterson Hall",
+        category: "residence",
+        aliases: ["OPH RESIDENCE"],
+        routingCoverage: "mapped",
+        entranceCount: 2,
+        verifiedEntranceCount: 2,
+        accessibility: "accessible",
+        indoorRoomNodeCount: 0,
+        provenance: [
+          {
+            source: "Gapwise Data",
+            sourceUrl: "https://data.gapwise.ca",
+            lastVerified: "2026-09-27",
+            verificationStatus: "verified",
+          },
+        ],
+        university: "uoft",
+        campus: "utm",
+      };
+
+      const fetchMock = vi.fn(async (url: URL) => {
+        expect(url.pathname).toBe("/v1/buildings");
+        expect(url.searchParams.get("university")).toBe("uoft");
+        expect(url.searchParams.get("campus")).toBe("utm");
+        if (url.searchParams.get("category") === "residence") {
+          return new Response(JSON.stringify({ data: [residenceBuilding] }), {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+          });
+        }
+        return new Response(JSON.stringify({ data: [building, residenceBuilding] }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
+      });
+      vi.stubGlobal("fetch", fetchMock);
+
+      const listing = await listCampusBuildings({
+        university: "uoft",
+        campus: "utm",
+        category: "residence",
+      });
+      expect(listing.buildings).toHaveLength(1);
+      expect(listing.buildings[0].category).toBe("residence");
+
+      const search = await searchCampusBuildings("residence", {
+        university: "uoft",
+        campus: "utm",
+      });
+      expect(search.results.length).toBeGreaterThan(0);
+      expect(search.results[0].building.code).toBe("OPH");
+      expect(search.results[0].matchReasons).toContain("category");
+    });
   });
 });

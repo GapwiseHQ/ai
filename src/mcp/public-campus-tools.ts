@@ -326,20 +326,21 @@ export function registerPublicCampusTools(server: McpRegistrar): void {
     {
       title: "List campus buildings known to Gapwise",
       description:
-        "List canonical campus buildings and Gapwise routing/accessibility coverage and provenance for a specified university and campus. University parameter is required.",
+        "List canonical campus buildings and Gapwise routing/accessibility coverage and provenance for a specified university and campus. University parameter is required. Optionally filter by category ('academic', 'residence', 'facility').",
       inputSchema: z
         .object({
           university: z.string().min(1),
           campus: z.string().optional(),
+          category: z.enum(["academic", "residence", "facility"]).optional(),
         })
         .strict(),
       outputSchema: PublicBuildingsOutputSchema,
       annotations: { readOnlyHint: true, openWorldHint: true },
     },
-    async ({ university, campus }) => {
+    async ({ university, campus, category }) => {
       try {
-        const value = await listCampusBuildings({ university, campus });
-        const scope = `${university}${campus ? `/${campus}` : ""}`;
+        const value = await listCampusBuildings({ university, campus, category });
+        const scope = `${university}${campus ? `/${campus}` : ""}${category ? ` (${category})` : ""}`;
         return ok(formatPublicBuildings(value.buildings, scope), value);
       } catch (error) {
         return failure(error);
@@ -352,21 +353,22 @@ export function registerPublicCampusTools(server: McpRegistrar): void {
     {
       title: "Search campus buildings with Gapwise",
       description:
-        "Search Gapwise's building directory across any supported university and campus by code, official name, or alias. Results are ranked deterministically and include match reasons. University parameter is required.",
+        "Search Gapwise's building directory across any supported university and campus by code, official name, alias, or category. Results are ranked deterministically and include match reasons. University parameter is required.",
       inputSchema: z
         .object({
           query: z.string().min(1).max(240),
           university: z.string().min(1),
           campus: z.string().optional(),
+          category: z.enum(["academic", "residence", "facility"]).optional(),
           maxResults: z.number().int().min(1).max(20).default(8),
         })
         .strict(),
       outputSchema: PublicBuildingSearchOutputSchema,
       annotations: { readOnlyHint: true, openWorldHint: true },
     },
-    async ({ query, university, campus, maxResults }) => {
+    async ({ query, university, campus, category, maxResults }) => {
       try {
-        const value = await searchCampusBuildings(query, { university, campus, maxResults });
+        const value = await searchCampusBuildings(query, { university, campus, category, maxResults });
         const summary = value.results.length
           ? [
               `Gapwise building search for “${query}” (${university}${campus ? `/${campus}` : ""}):`,
