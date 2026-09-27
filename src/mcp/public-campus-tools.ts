@@ -2,24 +2,31 @@ import type { createMcpHandler } from "mcp-handler";
 import { z } from "zod";
 import {
   getCampusBuilding,
+  getCampusPlace,
   getUtmBuilding,
   getUtmPlace,
   listCampusBuildings,
+  listCampusPlaces,
+  listSupportedCampuses,
   listSupportedUniversities,
   listUtmBuildings,
+  planCampusGap,
   planUtmGapWindow,
   PublicBuildingOutputSchema,
   PublicBuildingSearchOutputSchema,
   PublicBuildingsOutputSchema,
+  PublicCampusesOutputSchema,
   PublicGapPlanOutputSchema,
   PublicPlaceKindSchema,
   PublicPlaceOutputSchema,
+  PublicPlacesOutputSchema,
   PublicPlaceSearchOutputSchema,
   PublicRouteOutputSchema,
   PublicUniversitiesOutputSchema,
   routeBetweenCampusBuildings,
   routeBetweenUtmBuildings,
   searchCampusBuildings,
+  searchCampusPlaces,
   searchUtmBuildings,
   searchUtmPlaces,
 } from "@/src/domain/public-campus";
@@ -27,8 +34,10 @@ import { GapPreferencesPatchSchema, TermSchema, WeekdaySchema } from "@/src/doma
 import {
   formatPublicBuilding,
   formatPublicBuildings,
+  formatPublicCampuses,
   formatPublicGapPlan,
   formatPublicPlace,
+  formatPublicPlaces,
   formatPublicPlaceSearch,
   formatPublicRoute,
   formatPublicUniversities,
@@ -61,20 +70,25 @@ function failure(error: unknown) {
 }
 
 export function registerPublicCampusTools(server: McpRegistrar): void {
+  // ==========================================
+  // Deprecated UTM Compatibility Aliases (7)
+  // ==========================================
+
   server.registerTool(
     "list_utm_buildings",
     {
       title: "List UTM buildings known to Gapwise",
       description:
-        "List canonical UTM buildings and Gapwise's current routing/accessibility coverage and provenance. This is public stateless campus data: it does not read the user's timetable, account, friends, location, or private sync state. Prefer search_utm_buildings when the user gives a partial name, abbreviation, or uncertain building reference.",
+        "[DEPRECATED: Use list_campus_buildings with university='uoft' and campus='utm'] List canonical UTM buildings and Gapwise's current routing/accessibility coverage and provenance.",
       inputSchema: z.object({}).strict(),
       outputSchema: PublicBuildingsOutputSchema,
       annotations: { readOnlyHint: true, openWorldHint: true },
+      _meta: { deprecated: true },
     },
     async () => {
       try {
         const value = await listUtmBuildings();
-        return ok(formatPublicBuildings(value.buildings), value);
+        return ok(formatPublicBuildings(value.buildings, "UTM"), value);
       } catch (error) {
         return failure(error);
       }
@@ -86,7 +100,7 @@ export function registerPublicCampusTools(server: McpRegistrar): void {
     {
       title: "Search UTM buildings with Gapwise",
       description:
-        "Search Gapwise's canonical UTM building directory by code, official name, or alias. Use this to resolve partial or conversational references such as 'Deerfield', 'MN', or a building nickname before routing. Results are ranked deterministically and include match reasons; no user-private data is read.",
+        "[DEPRECATED: Use search_campus_buildings with university='uoft' and campus='utm'] Search Gapwise's canonical UTM building directory by code, official name, or alias.",
       inputSchema: z
         .object({
           query: z.string().min(1).max(240),
@@ -95,6 +109,7 @@ export function registerPublicCampusTools(server: McpRegistrar): void {
         .strict(),
       outputSchema: PublicBuildingSearchOutputSchema,
       annotations: { readOnlyHint: true, openWorldHint: true },
+      _meta: { deprecated: true },
     },
     async ({ query, maxResults }) => {
       try {
@@ -120,10 +135,11 @@ export function registerPublicCampusTools(server: McpRegistrar): void {
     {
       title: "Get a UTM building from Gapwise",
       description:
-        "Resolve one exact canonical UTM building by code, official name, or known alias and return Gapwise routing coverage, accessibility state and provenance. Fails closed on unknown or ambiguous names rather than guessing. Use search_utm_buildings first when the reference is partial or uncertain.",
+        "[DEPRECATED: Use get_campus_building with university='uoft' and campus='utm'] Resolve one exact canonical UTM building by code, official name, or known alias and return Gapwise routing coverage, accessibility state and provenance.",
       inputSchema: z.object({ query: z.string().min(1).max(240) }).strict(),
       outputSchema: PublicBuildingOutputSchema,
       annotations: { readOnlyHint: true, openWorldHint: true },
+      _meta: { deprecated: true },
     },
     async ({ query }) => {
       try {
@@ -140,7 +156,7 @@ export function registerPublicCampusTools(server: McpRegistrar): void {
     {
       title: "Search UTM places with Gapwise",
       description:
-        "Search Gapwise's source-backed UTM place catalog for study spaces, libraries, dining, recreation, services, amenities, and facilities. Search by name/description/amenity or filter by place kind and building. Results preserve provenance and never treat unknown operating hours as closed. This is stateless public campus data and does not read the user's private Gapwise state. Use get_utm_place on a returned canonical id for full details and official action links.",
+        "[DEPRECATED: Use search_campus_places with university='uoft' and campus='utm'] Search Gapwise's source-backed UTM place catalog for study spaces, libraries, dining, recreation, services, amenities, and facilities.",
       inputSchema: z
         .object({
           query: z.string().min(1).max(240).optional(),
@@ -156,11 +172,12 @@ export function registerPublicCampusTools(server: McpRegistrar): void {
         ),
       outputSchema: PublicPlaceSearchOutputSchema,
       annotations: { readOnlyHint: true, openWorldHint: true },
+      _meta: { deprecated: true },
     },
     async (args) => {
       try {
         const value = await searchUtmPlaces(args);
-        return ok(formatPublicPlaceSearch(value), value);
+        return ok(formatPublicPlaceSearch(value, "UTM"), value);
       } catch (error) {
         return failure(error);
       }
@@ -172,7 +189,7 @@ export function registerPublicCampusTools(server: McpRegistrar): void {
     {
       title: "Get a UTM place from Gapwise",
       description:
-        "Return one exact source-backed UTM campus place by canonical id, including building, category, amenities, official actions, and metadata/hours provenance. Preserve unknown or stale operating-hours evidence exactly; unknown never means closed. Use search_utm_places first when the place id is not already known.",
+        "[DEPRECATED: Use get_campus_place with university='uoft' and campus='utm'] Return one exact source-backed UTM campus place by canonical id.",
       inputSchema: z
         .object({
           id: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/u).max(240),
@@ -180,6 +197,7 @@ export function registerPublicCampusTools(server: McpRegistrar): void {
         .strict(),
       outputSchema: PublicPlaceOutputSchema,
       annotations: { readOnlyHint: true, openWorldHint: true },
+      _meta: { deprecated: true },
     },
     async ({ id }) => {
       try {
@@ -196,7 +214,7 @@ export function registerPublicCampusTools(server: McpRegistrar): void {
     {
       title: "Route between UTM buildings with Gapwise",
       description:
-        "Ask Gapwise's deterministic campus routing engine for a building-to-building route. Returns routed/approximate/unavailable status, verification, time/distance and warnings without exposing the routing graph. Preserve the returned uncertainty exactly; step-free mode never invents an accessible route. For personalized planning, first read the user's delegated routing preferences when permission allows and pass them here.",
+        "[DEPRECATED: Use route_between_campus_buildings with university='uoft' and campus='utm'] Ask Gapwise's deterministic campus routing engine for a building-to-building route at UTM.",
       inputSchema: z
         .object({
           from: z.string().min(1).max(240),
@@ -208,6 +226,7 @@ export function registerPublicCampusTools(server: McpRegistrar): void {
         .strict(),
       outputSchema: PublicRouteOutputSchema,
       annotations: { readOnlyHint: true, openWorldHint: true },
+      _meta: { deprecated: true },
     },
     async (args) => {
       try {
@@ -224,7 +243,7 @@ export function registerPublicCampusTools(server: McpRegistrar): void {
     {
       title: "Plan a UTM gap window with Gapwise",
       description:
-        "Run Gapwise's deterministic gap-assessment engine for an explicit free window between two canonical UTM building boundaries. It combines Gapwise routing, transition buffer, setup/pack-up, meal-window, commute and risk preferences to return the authoritative activity budget, recommendation, alternatives, leave-by/arrival time, confidence and warnings. This is stateless and does not discover the user's free time: use the delegated availability tools first for personalized planning, then pass an exact window and any explicitly delegated preferences here. Do not replace the result with model arithmetic.",
+        "[DEPRECATED: Use plan_campus_gap with university='uoft' and campus='utm'] Plan a UTM gap window with Gapwise.",
       inputSchema: z
         .object({
           from: z.string().min(1).max(240),
@@ -242,6 +261,7 @@ export function registerPublicCampusTools(server: McpRegistrar): void {
         }),
       outputSchema: PublicGapPlanOutputSchema,
       annotations: { readOnlyHint: true, openWorldHint: true },
+      _meta: { deprecated: true },
     },
     async (args) => {
       try {
@@ -252,6 +272,10 @@ export function registerPublicCampusTools(server: McpRegistrar): void {
       }
     },
   );
+
+  // ==========================================
+  // Canonical Multi-University Campus Tools (10)
+  // ==========================================
 
   server.registerTool(
     "list_supported_universities",
@@ -274,14 +298,38 @@ export function registerPublicCampusTools(server: McpRegistrar): void {
   );
 
   server.registerTool(
+    "list_supported_campuses",
+    {
+      title: "List supported campuses across Gapwise",
+      description:
+        "List campus models supported across Gapwise, including routability and status. Optionally filter by university id (e.g. 'uoft', 'carleton', 'tmu', 'queens', 'laurier', 'york', 'mcmaster', 'western', 'guelph', 'uottawa', 'brock').",
+      inputSchema: z
+        .object({
+          university: z.string().optional(),
+        })
+        .strict(),
+      outputSchema: PublicCampusesOutputSchema,
+      annotations: { readOnlyHint: true, openWorldHint: true },
+    },
+    async ({ university }) => {
+      try {
+        const value = await listSupportedCampuses({ university });
+        return ok(formatPublicCampuses(value.campuses, university), value);
+      } catch (error) {
+        return failure(error);
+      }
+    },
+  );
+
+  server.registerTool(
     "list_campus_buildings",
     {
       title: "List campus buildings known to Gapwise",
       description:
-        "List canonical buildings for a specified university and campus, including routing/accessibility coverage and provenance facts. When university or campus is omitted, defaults to UTM.",
+        "List canonical campus buildings and Gapwise routing/accessibility coverage and provenance for a specified university and campus. University parameter is required.",
       inputSchema: z
         .object({
-          university: z.string().optional(),
+          university: z.string().min(1),
           campus: z.string().optional(),
         })
         .strict(),
@@ -291,7 +339,7 @@ export function registerPublicCampusTools(server: McpRegistrar): void {
     async ({ university, campus }) => {
       try {
         const value = await listCampusBuildings({ university, campus });
-        const scope = university ? `${university}${campus ? `/${campus}` : ""}` : undefined;
+        const scope = `${university}${campus ? `/${campus}` : ""}`;
         return ok(formatPublicBuildings(value.buildings, scope), value);
       } catch (error) {
         return failure(error);
@@ -304,11 +352,11 @@ export function registerPublicCampusTools(server: McpRegistrar): void {
     {
       title: "Search campus buildings with Gapwise",
       description:
-        "Search Gapwise's building directory across any supported university or campus by code, official name, or alias. Results are ranked deterministically and include match reasons.",
+        "Search Gapwise's building directory across any supported university and campus by code, official name, or alias. Results are ranked deterministically and include match reasons. University parameter is required.",
       inputSchema: z
         .object({
           query: z.string().min(1).max(240),
-          university: z.string().optional(),
+          university: z.string().min(1),
           campus: z.string().optional(),
           maxResults: z.number().int().min(1).max(20).default(8),
         })
@@ -321,13 +369,13 @@ export function registerPublicCampusTools(server: McpRegistrar): void {
         const value = await searchCampusBuildings(query, { university, campus, maxResults });
         const summary = value.results.length
           ? [
-              `Gapwise building search for “${query}”:`,
+              `Gapwise building search for “${query}” (${university}${campus ? `/${campus}` : ""}):`,
               ...value.results.map(
                 (result) =>
                   `- ${result.building.code} — ${result.building.name} (score ${result.score}; matched ${result.matchReasons.join(", ")})`,
               ),
             ].join("\n")
-          : `No buildings matched “${query}”.`;
+          : `No buildings matched “${query}” for ${university}${campus ? `/${campus}` : ""}.`;
         return ok(summary, value);
       } catch (error) {
         return failure(error);
@@ -340,11 +388,11 @@ export function registerPublicCampusTools(server: McpRegistrar): void {
     {
       title: "Get details for a campus building with Gapwise",
       description:
-        "Look up a single canonical building across any supported university and campus by code, official name, or alias.",
+        "Look up a single canonical building across any supported university and campus by code, official name, or alias. Fails closed on unknown buildings. University parameter is required.",
       inputSchema: z
         .object({
           building: z.string().min(1).max(240),
-          university: z.string().optional(),
+          university: z.string().min(1),
           campus: z.string().optional(),
         })
         .strict(),
@@ -362,16 +410,103 @@ export function registerPublicCampusTools(server: McpRegistrar): void {
   );
 
   server.registerTool(
+    "list_campus_places",
+    {
+      title: "List campus places known to Gapwise",
+      description:
+        "List source-backed campus places (study spaces, dining, libraries, recreation, amenities) for a specified university and campus. University parameter is required.",
+      inputSchema: z
+        .object({
+          university: z.string().min(1),
+          campus: z.string().optional(),
+        })
+        .strict(),
+      outputSchema: PublicPlacesOutputSchema,
+      annotations: { readOnlyHint: true, openWorldHint: true },
+    },
+    async ({ university, campus }) => {
+      try {
+        const value = await listCampusPlaces({ university, campus });
+        const scope = `${university}${campus ? `/${campus}` : ""}`;
+        return ok(formatPublicPlaces(value.places, scope), value);
+      } catch (error) {
+        return failure(error);
+      }
+    },
+  );
+
+  server.registerTool(
+    "search_campus_places",
+    {
+      title: "Search campus places with Gapwise",
+      description:
+        "Search source-backed campus places for a specified university and campus. Search by name/amenity or filter by place kind and building. University parameter is required.",
+      inputSchema: z
+        .object({
+          university: z.string().min(1),
+          campus: z.string().optional(),
+          query: z.string().min(1).max(240).optional(),
+          kind: PublicPlaceKindSchema.optional(),
+          building: z.string().min(1).max(240).optional(),
+          amenity: z.string().min(1).max(240).optional(),
+          maxResults: z.number().int().min(1).max(20).default(10),
+        })
+        .strict()
+        .refine(
+          (value) => Boolean(value.query || value.kind || value.building || value.amenity),
+          { message: "Provide a query or at least one place filter." },
+        ),
+      outputSchema: PublicPlaceSearchOutputSchema,
+      annotations: { readOnlyHint: true, openWorldHint: true },
+    },
+    async (args) => {
+      try {
+        const value = await searchCampusPlaces(args);
+        const scope = `${args.university}${args.campus ? `/${args.campus}` : ""}`;
+        return ok(formatPublicPlaceSearch(value, scope), value);
+      } catch (error) {
+        return failure(error);
+      }
+    },
+  );
+
+  server.registerTool(
+    "get_campus_place",
+    {
+      title: "Get details for a campus place with Gapwise",
+      description:
+        "Return one exact source-backed campus place by canonical id for a specified university and campus, including building, category, amenities, official actions, and metadata/hours provenance. University parameter is required.",
+      inputSchema: z
+        .object({
+          id: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/u).max(240),
+          university: z.string().min(1),
+          campus: z.string().optional(),
+        })
+        .strict(),
+      outputSchema: PublicPlaceOutputSchema,
+      annotations: { readOnlyHint: true, openWorldHint: true },
+    },
+    async ({ id, university, campus }) => {
+      try {
+        const value = await getCampusPlace(id, { university, campus });
+        return ok(formatPublicPlace(value.place, value.source ?? null), value);
+      } catch (error) {
+        return failure(error);
+      }
+    },
+  );
+
+  server.registerTool(
     "route_between_campus_buildings",
     {
       title: "Route between campus buildings with Gapwise",
       description:
-        "Ask Gapwise's deterministic campus routing engine for a building-to-building route across any supported university and campus. Returns routed/approximate/unavailable status, verification, time/distance and warnings without exposing the routing graph.",
+        "Ask Gapwise's deterministic campus routing engine for a building-to-building route across any supported university and campus. Returns routed/approximate/unavailable status, verification, time/distance and warnings without exposing the routing graph. University parameter is required.",
       inputSchema: z
         .object({
           from: z.string().min(1).max(240),
           to: z.string().min(1).max(240),
-          university: z.string().optional(),
+          university: z.string().min(1),
           campus: z.string().optional(),
           mode: z.enum(["fastest", "prefer-indoor", "step-free"]).optional(),
           walkingSpeedMps: z.number().min(0.5).max(3).optional(),
@@ -385,6 +520,42 @@ export function registerPublicCampusTools(server: McpRegistrar): void {
       try {
         const value = await routeBetweenCampusBuildings(args);
         return ok(formatPublicRoute(value.route), value);
+      } catch (error) {
+        return failure(error);
+      }
+    },
+  );
+
+  server.registerTool(
+    "plan_campus_gap",
+    {
+      title: "Plan a campus gap window with Gapwise",
+      description:
+        "Run Gapwise's deterministic gap-assessment engine for an explicit free window between two building boundaries for a specified university and campus. Combines routing, transition buffer, setup/pack-up, meal-window, commute and risk preferences. University parameter is required.",
+      inputSchema: z
+        .object({
+          from: z.string().min(1).max(240),
+          to: z.string().min(1).max(240),
+          university: z.string().min(1),
+          campus: z.string().optional(),
+          term: TermSchema,
+          weekday: WeekdaySchema,
+          startTime: z.number().int().min(0).max(1440),
+          endTime: z.number().int().min(0).max(1440),
+          routePreferences: routePreferencesSchema.optional(),
+          gapPreferences: GapPreferencesPatchSchema.optional(),
+        })
+        .strict()
+        .refine((value) => value.endTime > value.startTime, {
+          message: "endTime must be after startTime",
+        }),
+      outputSchema: PublicGapPlanOutputSchema,
+      annotations: { readOnlyHint: true, openWorldHint: true },
+    },
+    async (args) => {
+      try {
+        const value = await planCampusGap(args);
+        return ok(formatPublicGapPlan(value.gapPlan), value);
       } catch (error) {
         return failure(error);
       }

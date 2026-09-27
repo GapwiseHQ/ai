@@ -2,6 +2,39 @@ import { z } from "zod";
 import { getRuntimeConfig } from "@/src/config";
 import { GapPreferencesSchema, TermSchema, WeekdaySchema } from "@/src/domain/schemas";
 
+export const CANONICAL_UNIVERSITIES = [
+  "uoft",
+  "carleton",
+  "tmu",
+  "queens",
+  "laurier",
+  "york",
+  "mcmaster",
+  "western",
+  "guelph",
+  "uottawa",
+  "brock",
+] as const;
+
+export type CanonicalUniversity = (typeof CANONICAL_UNIVERSITIES)[number];
+
+export const CANONICAL_UNIVERSITY_CAMPUSES: Record<
+  string,
+  { defaultCampus: string; campuses: readonly string[] }
+> = {
+  uoft: { defaultCampus: "utm", campuses: ["utm", "utsg", "utsc"] },
+  carleton: { defaultCampus: "carleton", campuses: ["carleton"] },
+  tmu: { defaultCampus: "tmu", campuses: ["tmu"] },
+  queens: { defaultCampus: "queens", campuses: ["queens"] },
+  laurier: { defaultCampus: "waterloo", campuses: ["waterloo"] },
+  york: { defaultCampus: "keele", campuses: ["keele"] },
+  mcmaster: { defaultCampus: "mcmaster", campuses: ["mcmaster"] },
+  western: { defaultCampus: "western", campuses: ["western"] },
+  guelph: { defaultCampus: "guelph", campuses: ["guelph"] },
+  uottawa: { defaultCampus: "uottawa", campuses: ["uottawa"] },
+  brock: { defaultCampus: "brock", campuses: ["brock"] },
+};
+
 const VerificationStatusSchema = z.enum(["verified", "inferred", "unknown"]);
 const AccessibilitySchema = z.enum(["accessible", "not_accessible", "unknown"]);
 const RouteModeSchema = z.enum(["fastest", "prefer-indoor", "step-free"]);
@@ -38,7 +71,7 @@ const CampusFactProvenanceSchema = z.object({
   note: z.string().optional(),
 });
 
-const CampusSourceSchema = z.object({
+export const CampusSourceSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
   url: z.string().url(),
@@ -81,6 +114,8 @@ export const PublicPlaceSchema = z.object({
   hours: WeeklyHoursSchema.optional(),
   hoursProvenance: CampusFactProvenanceSchema,
   metadataProvenance: CampusFactProvenanceSchema,
+  university: z.string().optional(),
+  campus: z.string().optional(),
 });
 
 export const PublicBuildingSchema = z.object({
@@ -98,24 +133,47 @@ export const PublicBuildingSchema = z.object({
   campus: z.string().optional(),
 });
 
+export const PublicCampusSchema = z.object({
+  id: z.string(),
+  universityId: z.string(),
+  name: z.string(),
+  shortName: z.string(),
+  routable: z.boolean(),
+  defaultForUniversity: z.boolean().optional(),
+  status: z.string().optional(),
+});
+
+export const PublicCampusesOutputSchema = z.object({
+  service: z.literal("gapwise-public-campus"),
+  campuses: z.array(PublicCampusSchema),
+});
+
 export const PublicUniversitySchema = z.object({
   id: z.string(),
   name: z.string(),
   shortName: z.string(),
-  hostname: z.string(),
-  canonicalUrl: z.string(),
+  hostname: z.string().optional(),
+  canonicalUrl: z.string().optional(),
   accentColor: z.string(),
   campuses: z.array(
-    z.object({
-      id: z.string(),
-      name: z.string(),
-      shortName: z.string(),
-      city: z.string(),
-      isMainCampus: z.boolean(),
-      routable: z.boolean(),
-      buildingCount: z.number(),
-    }),
+    z.union([
+      z.string(),
+      z.object({
+        id: z.string(),
+        name: z.string(),
+        shortName: z.string(),
+        city: z.string().optional(),
+        isMainCampus: z.boolean().optional(),
+        routable: z.boolean().optional(),
+        buildingCount: z.number().optional(),
+      }),
+    ]),
   ),
+  campusScope: z.string().optional(),
+  defaultCampus: z.string().optional(),
+  hosts: z.array(z.string()).optional(),
+  routableCampuses: z.array(z.string()).optional(),
+  status: z.string().optional(),
 });
 
 export const PublicUniversitiesOutputSchema = z.object({
@@ -145,12 +203,9 @@ export const PublicBuildingSearchOutputSchema = z.object({
   ),
 });
 
-const PublicPlacesSourceOutputSchema = z.object({
+export const PublicPlacesOutputSchema = z.object({
   service: z.literal("gapwise-public-campus"),
-  dataVersion: z.string(),
-  generatedAt: z.string(),
   places: z.array(PublicPlaceSchema),
-  sources: z.array(CampusSourceSchema),
 });
 
 export const PublicPlaceSearchOutputSchema = z.object({
@@ -189,13 +244,7 @@ export const PublicRouteSchema = z.object({
     transitionBufferMinutes: z.number().int().nonnegative(),
   }),
   status: z.enum(["same-building", "routed", "approximate", "unavailable"]),
-  accuracy: z.enum([
-    "Same building",
-    "Verified outdoor route, indoor estimate",
-    "Mapped campus path, indoor estimate",
-    "Approximate building-to-building estimate",
-    "Location unavailable",
-  ]),
+  accuracy: z.string(),
   totalDistanceMeters: z.number().nonnegative().nullable(),
   indoorDistanceMeters: z.number().nonnegative().nullable(),
   outdoorDistanceMeters: z.number().nonnegative().nullable(),
@@ -250,13 +299,7 @@ const PublicGapAssessmentSchema = z.object({
   arrivalMinutes: z.number().int().nullable(),
   fallback: z.boolean(),
   routeStatus: z.enum(["routed", "approximate", "same-room", "unavailable"]),
-  routeAccuracy: z.enum([
-    "Verified indoor + outdoor route",
-    "Verified outdoor route, indoor estimate",
-    "Mapped campus path, indoor estimate",
-    "Approximate building-to-building estimate",
-    "Location unavailable",
-  ]),
+  routeAccuracy: z.string(),
   warnings: z.array(z.string()),
 });
 
@@ -282,16 +325,45 @@ export const PublicGapPlanOutputSchema = z.object({
 });
 
 export type PublicBuilding = z.infer<typeof PublicBuildingSchema>;
+export type PublicCampus = z.infer<typeof PublicCampusSchema>;
 export type PublicPlace = z.infer<typeof PublicPlaceSchema>;
 export type PublicPlaceKind = z.infer<typeof PublicPlaceKindSchema>;
 export type PublicRoute = z.infer<typeof PublicRouteSchema>;
 export type PublicGapPlan = z.infer<typeof PublicGapPlanSchema>;
 
-class CampusIntelligenceError extends Error {
+export class CampusIntelligenceError extends Error {
   constructor(message: string) {
     super(message);
     this.name = "CampusIntelligenceError";
   }
+}
+
+export function validateUniversityAndCampus(
+  universityId?: string,
+  campusId?: string,
+): { university: string; campus: string } {
+  if (!universityId || typeof universityId !== "string" || !universityId.trim()) {
+    throw new CampusIntelligenceError(
+      `A valid university parameter is required (e.g. ${CANONICAL_UNIVERSITIES.map((u) => `'${u}'`).join(", ")}). Call list_supported_universities to view all options.`,
+    );
+  }
+  const u = universityId.trim().toLowerCase();
+  const entry = CANONICAL_UNIVERSITY_CAMPUSES[u];
+  if (!entry) {
+    throw new CampusIntelligenceError(
+      `Unsupported university "${universityId}". Supported universities: ${CANONICAL_UNIVERSITIES.join(", ")}. Call list_supported_universities for details.`,
+    );
+  }
+  if (!campusId || typeof campusId !== "string" || !campusId.trim()) {
+    return { university: u, campus: entry.defaultCampus };
+  }
+  const c = campusId.trim().toLowerCase();
+  if (!entry.campuses.includes(c)) {
+    throw new CampusIntelligenceError(
+      `Unsupported campus "${campusId}" for university "${u}". Valid campuses for ${u}: ${entry.campuses.join(", ")}. Call list_supported_campuses for details.`,
+    );
+  }
+  return { university: u, campus: c };
 }
 
 async function fetchJson(path: string, init?: RequestInit): Promise<unknown> {
@@ -315,7 +387,15 @@ async function fetchJson(path: string, init?: RequestInit): Promise<unknown> {
     const message =
       typeof body === "object" && body !== null && "message" in body && typeof body.message === "string"
         ? body.message
-        : `Gapwise campus intelligence returned HTTP ${response.status}.`;
+        : typeof body === "object" &&
+            body !== null &&
+            "error" in body &&
+            typeof (body as any).error === "object" &&
+            (body as any).error !== null &&
+            "message" in (body as any).error &&
+            typeof (body as any).error.message === "string"
+          ? (body as any).error.message
+          : `Gapwise campus intelligence returned HTTP ${response.status}.`;
     throw new CampusIntelligenceError(message);
   }
   return body;
@@ -334,28 +414,43 @@ export async function listSupportedUniversities() {
   });
 }
 
-export async function listCampusBuildings(options?: { university?: string; campus?: string }) {
-  if (options?.university || options?.campus) {
-    const params = new URLSearchParams();
-    if (options.university) params.set("university", options.university);
-    if (options.campus) params.set("campus", options.campus);
-    const q = params.toString() ? `?${params.toString()}` : "";
-    const raw = await fetchJson(`/v1/buildings${q}`);
-    const buildings = Array.isArray((raw as any)?.data)
-      ? (raw as any).data
-      : Array.isArray((raw as any)?.buildings)
-        ? (raw as any).buildings
-        : [];
-    return PublicBuildingsOutputSchema.parse({
-      service: "gapwise-public-campus",
-      buildings,
-    });
+export async function listSupportedCampuses(options?: { university?: string }) {
+  const params = new URLSearchParams();
+  if (options?.university) {
+    const { university } = validateUniversityAndCampus(options.university);
+    params.set("university", university);
   }
-  return PublicBuildingsOutputSchema.parse(await fetchJson("/api/utm-buildings"));
+  const q = params.toString() ? `?${params.toString()}` : "";
+  const raw = await fetchJson(`/v1/campuses${q}`);
+  const campuses = Array.isArray((raw as any)?.data)
+    ? (raw as any).data
+    : Array.isArray((raw as any)?.campuses)
+      ? (raw as any).campuses
+      : [];
+  return PublicCampusesOutputSchema.parse({
+    service: "gapwise-public-campus",
+    campuses,
+  });
+}
+
+export async function listCampusBuildings(options: { university: string; campus?: string }) {
+  const { university, campus } = validateUniversityAndCampus(options.university, options.campus);
+  const raw = await fetchJson(
+    `/v1/buildings?university=${encodeURIComponent(university)}&campus=${encodeURIComponent(campus)}`,
+  );
+  const buildings = Array.isArray((raw as any)?.data)
+    ? (raw as any).data
+    : Array.isArray((raw as any)?.buildings)
+      ? (raw as any).buildings
+      : [];
+  return PublicBuildingsOutputSchema.parse({
+    service: "gapwise-public-campus",
+    buildings,
+  });
 }
 
 export async function listUtmBuildings() {
-  return listCampusBuildings();
+  return listCampusBuildings({ university: "uoft", campus: "utm" });
 }
 
 function normalizeSearch(value: string): string {
@@ -388,12 +483,10 @@ function buildingMatch(query: string, building: PublicBuilding) {
 
 export async function searchCampusBuildings(
   query: string,
-  options?: { university?: string; campus?: string; maxResults?: number },
+  options: { university: string; campus?: string; maxResults?: number },
 ) {
-  const { buildings } = await listCampusBuildings({
-    university: options?.university,
-    campus: options?.campus,
-  });
+  const { university, campus } = validateUniversityAndCampus(options.university, options.campus);
+  const { buildings } = await listCampusBuildings({ university, campus });
   const results = buildings
     .map((building) => {
       const match = buildingMatch(query, building);
@@ -401,7 +494,7 @@ export async function searchCampusBuildings(
     })
     .filter((item) => item.score > 0)
     .sort((a, b) => b.score - a.score || a.building.code.localeCompare(b.building.code))
-    .slice(0, options?.maxResults ?? 8);
+    .slice(0, options.maxResults ?? 8);
   return PublicBuildingSearchOutputSchema.parse({
     service: "gapwise-public-campus",
     query,
@@ -410,31 +503,26 @@ export async function searchCampusBuildings(
 }
 
 export async function searchUtmBuildings(query: string, maxResults = 8) {
-  return searchCampusBuildings(query, { maxResults });
+  return searchCampusBuildings(query, { university: "uoft", campus: "utm", maxResults });
 }
 
 export async function getCampusBuilding(
   query: string,
-  options?: { university?: string; campus?: string },
+  options: { university: string; campus?: string },
 ) {
-  if (options?.university || options?.campus) {
-    const params = new URLSearchParams();
-    if (options.university) params.set("university", options.university);
-    if (options.campus) params.set("campus", options.campus);
-    const q = params.toString() ? `?${params.toString()}` : "";
-    const raw = await fetchJson(`/v1/buildings/${encodeURIComponent(query)}${q}`);
-    const building = (raw as any)?.data ?? (raw as any)?.building;
-    return PublicBuildingOutputSchema.parse({
-      service: "gapwise-public-campus",
-      building,
-    });
-  }
-  const params = new URLSearchParams({ q: query });
-  return PublicBuildingOutputSchema.parse(await fetchJson(`/api/utm-building?${params.toString()}`));
+  const { university, campus } = validateUniversityAndCampus(options.university, options.campus);
+  const raw = await fetchJson(
+    `/v1/buildings/${encodeURIComponent(query)}?university=${encodeURIComponent(university)}&campus=${encodeURIComponent(campus)}`,
+  );
+  const building = (raw as any)?.data ?? (raw as any)?.building;
+  return PublicBuildingOutputSchema.parse({
+    service: "gapwise-public-campus",
+    building,
+  });
 }
 
 export async function getUtmBuilding(query: string) {
-  return getCampusBuilding(query);
+  return getCampusBuilding(query, { university: "uoft", campus: "utm" });
 }
 
 function placeMatch(query: string | undefined, place: PublicPlace) {
@@ -461,19 +549,47 @@ function placeMatch(query: string | undefined, place: PublicPlace) {
   return { score, reasons: [...new Set(reasons)] };
 }
 
-export async function searchUtmPlaces(input: {
+export async function listCampusPlaces(options: { university: string; campus?: string }) {
+  const { university, campus } = validateUniversityAndCampus(options.university, options.campus);
+  const raw = await fetchJson(
+    `/v1/places?university=${encodeURIComponent(university)}&campus=${encodeURIComponent(campus)}`,
+  );
+  const places = Array.isArray((raw as any)?.data)
+    ? (raw as any).data
+    : Array.isArray((raw as any)?.places)
+      ? (raw as any).places
+      : [];
+  return PublicPlacesOutputSchema.parse({
+    service: "gapwise-public-campus",
+    places,
+  });
+}
+
+export async function searchCampusPlaces(input: {
+  university: string;
+  campus?: string;
   query?: string;
   kind?: PublicPlaceKind;
   building?: string;
   amenity?: string;
   maxResults?: number;
 }) {
-  const source = PublicPlacesSourceOutputSchema.parse(await fetchJson("/api/utm-places"));
+  const { university, campus } = validateUniversityAndCampus(input.university, input.campus);
+  const raw = await fetchJson(
+    `/v1/places?university=${encodeURIComponent(university)}&campus=${encodeURIComponent(campus)}`,
+  );
+  const placesRaw: PublicPlace[] = Array.isArray((raw as any)?.data)
+    ? (raw as any).data
+    : Array.isArray((raw as any)?.places)
+      ? (raw as any).places
+      : [];
+  const meta = (raw as any)?.meta;
+  const dataVersion = meta?.dataVersion ?? "campus-state";
   const query = input.query?.trim() || undefined;
   const building = input.building?.trim() || undefined;
   const amenity = input.amenity?.trim() || undefined;
-  const sourceById = new Map(source.sources.map((item) => [item.id, item]));
-  const results = source.places
+
+  const results = placesRaw
     .filter((place) => !input.kind || place.kind === input.kind)
     .filter(
       (place) =>
@@ -494,7 +610,7 @@ export async function searchUtmPlaces(input: {
         score: match.score,
         matchReasons: [...new Set(reasons)],
         place,
-        source: sourceById.get(place.metadataProvenance.sourceId) ?? null,
+        source: null,
       };
     })
     .filter((item) => !query || item.score > 0)
@@ -503,7 +619,7 @@ export async function searchUtmPlaces(input: {
 
   return PublicPlaceSearchOutputSchema.parse({
     service: "gapwise-public-campus",
-    dataVersion: source.dataVersion,
+    dataVersion,
     query: query ?? null,
     filters: {
       kind: input.kind ?? null,
@@ -514,21 +630,53 @@ export async function searchUtmPlaces(input: {
   });
 }
 
+export async function searchUtmPlaces(input: {
+  query?: string;
+  kind?: PublicPlaceKind;
+  building?: string;
+  amenity?: string;
+  maxResults?: number;
+}) {
+  return searchCampusPlaces({
+    ...input,
+    university: "uoft",
+    campus: "utm",
+  });
+}
+
+export async function getCampusPlace(
+  id: string,
+  options: { university: string; campus?: string },
+) {
+  const { university, campus } = validateUniversityAndCampus(options.university, options.campus);
+  const raw = await fetchJson(
+    `/v1/places/${encodeURIComponent(id)}?university=${encodeURIComponent(university)}&campus=${encodeURIComponent(campus)}`,
+  );
+  const place = (raw as any)?.data ?? (raw as any)?.place;
+  const source = (raw as any)?.source ?? null;
+  const dataVersion = (raw as any)?.meta?.dataVersion ?? "campus-state";
+  return PublicPlaceOutputSchema.parse({
+    service: "gapwise-public-campus",
+    dataVersion,
+    place,
+    source,
+  });
+}
+
 export async function getUtmPlace(id: string) {
-  const params = new URLSearchParams({ id });
-  const value = await fetchJson(`/api/utm-place?${params.toString()}`);
-  return PublicPlaceOutputSchema.parse(value);
+  return getCampusPlace(id, { university: "uoft", campus: "utm" });
 }
 
 export async function routeBetweenCampusBuildings(input: {
   from: string;
   to: string;
-  university?: string;
+  university: string;
   campus?: string;
   mode?: z.infer<typeof RouteModeSchema>;
   walkingSpeedMps?: number;
   transitionBufferMinutes?: number;
 }) {
+  const { university, campus } = validateUniversityAndCampus(input.university, input.campus);
   const preferences = {
     ...(input.mode !== undefined ? { mode: input.mode } : {}),
     ...(input.walkingSpeedMps !== undefined ? { walkingSpeedMps: input.walkingSpeedMps } : {}),
@@ -536,33 +684,21 @@ export async function routeBetweenCampusBuildings(input: {
       ? { transitionBufferMinutes: input.transitionBufferMinutes }
       : {}),
   };
-  if (input.university || input.campus) {
-    const raw = await fetchJson("/v1/routes", {
-      method: "POST",
-      body: JSON.stringify({
-        from: input.from,
-        to: input.to,
-        ...(input.university ? { university: input.university } : {}),
-        ...(input.campus ? { campus: input.campus } : {}),
-        preferences: Object.keys(preferences).length > 0 ? preferences : undefined,
-      }),
-    });
-    const route = (raw as any)?.data ?? (raw as any)?.route;
-    return PublicRouteOutputSchema.parse({
-      service: "gapwise-public-campus",
-      route,
-    });
-  }
-  return PublicRouteOutputSchema.parse(
-    await fetchJson("/api/utm-route", {
-      method: "POST",
-      body: JSON.stringify({
-        from: input.from,
-        to: input.to,
-        preferences: Object.keys(preferences).length > 0 ? preferences : null,
-      }),
+  const raw = await fetchJson("/v1/routes", {
+    method: "POST",
+    body: JSON.stringify({
+      from: input.from,
+      to: input.to,
+      university,
+      campus,
+      preferences: Object.keys(preferences).length > 0 ? preferences : undefined,
     }),
-  );
+  });
+  const route = (raw as any)?.data ?? (raw as any)?.route;
+  return PublicRouteOutputSchema.parse({
+    service: "gapwise-public-campus",
+    route,
+  });
 }
 
 export async function routeBetweenUtmBuildings(input: {
@@ -572,7 +708,50 @@ export async function routeBetweenUtmBuildings(input: {
   walkingSpeedMps?: number;
   transitionBufferMinutes?: number;
 }) {
-  return routeBetweenCampusBuildings(input);
+  return routeBetweenCampusBuildings({
+    ...input,
+    university: "uoft",
+    campus: "utm",
+  });
+}
+
+export async function planCampusGap(input: {
+  from: string;
+  to: string;
+  university: string;
+  campus?: string;
+  term: z.infer<typeof TermSchema>;
+  weekday: z.infer<typeof WeekdaySchema>;
+  startTime: number;
+  endTime: number;
+  routePreferences?: {
+    mode?: z.infer<typeof RouteModeSchema>;
+    walkingSpeedMps?: number;
+    transitionBufferMinutes?: number;
+  } | null;
+  gapPreferences?: Partial<z.infer<typeof GapPreferencesSchema>> | null;
+}) {
+  const { university, campus } = validateUniversityAndCampus(input.university, input.campus);
+  const raw = await fetchJson("/v1/gaps/plan", {
+    method: "POST",
+    body: JSON.stringify({
+      from: input.from,
+      to: input.to,
+      university,
+      campus,
+      term: input.term,
+      weekday: input.weekday,
+      startTime: input.startTime,
+      endTime: input.endTime,
+      routePreferences: input.routePreferences ?? undefined,
+      gapPreferences: input.gapPreferences ?? undefined,
+    }),
+  });
+  const gapPlan = (raw as any)?.data ?? (raw as any)?.gapPlan;
+  return PublicGapPlanOutputSchema.parse({
+    service: "gapwise-public-campus",
+    gapPlan,
+  });
 }
 
 export async function planUtmGapWindow(input: {
@@ -589,19 +768,9 @@ export async function planUtmGapWindow(input: {
   } | null;
   gapPreferences?: Partial<z.infer<typeof GapPreferencesSchema>> | null;
 }) {
-  return PublicGapPlanOutputSchema.parse(
-    await fetchJson("/api/utm-gap-plan", {
-      method: "POST",
-      body: JSON.stringify({
-        from: input.from,
-        to: input.to,
-        term: input.term,
-        weekday: input.weekday,
-        startTime: input.startTime,
-        endTime: input.endTime,
-        routePreferences: input.routePreferences ?? null,
-        gapPreferences: input.gapPreferences ?? null,
-      }),
-    }),
-  );
+  return planCampusGap({
+    ...input,
+    university: "uoft",
+    campus: "utm",
+  });
 }
