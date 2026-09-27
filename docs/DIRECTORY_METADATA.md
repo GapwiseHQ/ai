@@ -26,7 +26,7 @@ Use your Gapwise timetable and available campus intelligence with an AI assistan
 
 ## Full description
 
-Gapwise connects your explicitly delegated timetable context and deterministic campus intelligence to compatible AI assistants through a secure remote MCP integration. Ask about your day or week, find realistic study opportunities between classes, check whether a proposed plan fits, and reason over Gapwise route and gap assessments. Public MCP campus tools currently cover UTM; when you explicitly allow writes, the integration can queue selected gap-preference changes.
+Gapwise connects your explicitly delegated timetable context and deterministic campus intelligence to compatible AI assistants through a secure remote MCP integration. Ask about your day or week, find realistic study opportunities between classes, check whether a proposed plan fits, and reason over Gapwise route and gap assessments. Public MCP campus tools cover all supported universities; seven deprecated UTM aliases remain for compatibility. When you explicitly allow writes, the integration can queue selected gap-preference changes.
 
 Gapwise remains the source of deterministic schedule and campus facts; the connected AI assistant provides natural-language reasoning. Imported academic meetings are always read-only. The connector does not expose friend data, precise live/background location, account credentials, raw imported timetable files, or Gapwise private-data encryption keys.
 
@@ -38,7 +38,7 @@ Gapwise is an independent project and is not an official service of, or endorsed
 - Find source-backed free windows and weekly study opportunities.
 - Use deterministic Gapwise gap assessments rather than model-side timetable arithmetic.
 - Check proposed personal blocks against hard schedule conflicts and known Gapwise transition constraints.
-- Resolve UTM buildings and reason over Gapwise campus routes when public campus tools are enabled.
+- Resolve buildings and reason over supported campus routes with the correct university and campus context.
 - Update selected delegated gap preferences when write permission is enabled.
 - Revoke AI access from Gapwise at any time.
 
@@ -48,7 +48,7 @@ Gapwise is an independent project and is not an official service of, or endorsed
 - Find me a 90-minute study opportunity this week.
 - What is the best use of my gap after class on Tuesday?
 - Can I fit a gym session from 3 to 4 PM Wednesday?
-- How do I get from MN to DH at UTM?
+- How do I get from TB to ML at Carleton?
 
 ## Safety / privacy statements
 
