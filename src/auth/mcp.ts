@@ -28,11 +28,31 @@ const TOOL_DESCRIPTION_OVERRIDES: Readonly<Record<string, string>> = {
   check_my_plan_feasibility:
     "Read-only validation of a proposed personal time block against delegated hard timetable conflicts and, when the block lies inside a delegated Gapwise gap, its authoritative activity envelope and route availability. Proposed locations are echoed but are not route-validated by this tool.",
   list_utm_buildings:
-    "Lists canonical UTM buildings with Gapwise routing/accessibility coverage and provenance. Uses only public stateless campus data and does not read timetable, account, friend, location, or private-sync state.",
+    "[Deprecated: Use list_campus_buildings with university='uoft'] Lists canonical UTM buildings with Gapwise routing/accessibility coverage and provenance. Uses only public stateless campus data and does not read timetable, account, friend, location, or private-sync state.",
   route_between_utm_buildings:
-    "Returns a deterministic Gapwise building-to-building route with routed/approximate/unavailable status, verification, time and distance, accessibility state, and warnings. Step-free mode returns unavailable when an accessible route cannot be justified. Optional routing preferences can be supplied explicitly.",
+    "[Deprecated: Use route_between_campus_buildings with university='uoft'] Returns a deterministic Gapwise building-to-building route with routed/approximate/unavailable status, verification, time and distance, accessibility state, and warnings. Step-free mode returns unavailable when an accessible route cannot be justified. Optional routing preferences can be supplied explicitly.",
   plan_utm_gap_window:
-    "Runs Gapwise's deterministic gap-assessment engine for an explicit free window between two UTM buildings using supplied route and gap preferences. Returns activity budget, recommendation, alternatives, leave-by/arrival time, confidence, route status, and warnings. This tool is stateless and does not discover the user's free time.",
+    "[Deprecated: Use plan_campus_gap with university='uoft'] Runs Gapwise's deterministic gap-assessment engine for an explicit free window between two UTM buildings using supplied route and gap preferences. Returns activity budget, recommendation, alternatives, leave-by/arrival time, confidence, route status, and warnings. This tool is stateless and does not discover the user's free time.",
+  list_supported_universities:
+    "Lists all universities supported by the Gapwise platform, including canonical editions, campus models, and routing capabilities.",
+  list_supported_campuses:
+    "Lists supported campus models across universities, including routability and status, with optional university filter.",
+  list_campus_buildings:
+    "Lists canonical campus buildings with Gapwise routing and accessibility coverage for a specified university and campus.",
+  search_campus_buildings:
+    "Searches canonical campus buildings across any supported university and campus by code, official name, or alias.",
+  get_campus_building:
+    "Looks up a single canonical campus building for a specified university and campus by code, official name, or alias.",
+  list_campus_places:
+    "Lists source-backed campus places (study spaces, dining, recreation, services) for a specified university and campus.",
+  search_campus_places:
+    "Searches source-backed campus places for a specified university and campus by query or filter.",
+  get_campus_place:
+    "Returns one exact source-backed campus place by canonical id for a specified university and campus.",
+  route_between_campus_buildings:
+    "Returns a deterministic building-to-building route across any supported university and campus with time, distance, accessibility state, and warnings.",
+  plan_campus_gap:
+    "Runs Gapwise's deterministic gap-assessment engine for an explicit free window between two campus buildings for a specified university and campus.",
 };
 
 export function projectedToolDescription(name: string, description?: string): string | undefined {

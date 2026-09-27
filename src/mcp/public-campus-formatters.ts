@@ -57,16 +57,45 @@ export function formatPublicUniversities(
     id: string;
     name: string;
     shortName: string;
-    canonicalUrl: string;
-    campuses: Array<{ id: string; name: string; routable: boolean }>;
+    canonicalUrl?: string;
+    campuses: Array<
+      | string
+      | { id: string; name: string; routable?: boolean }
+    >;
   }>,
 ) {
   const lines = [
     PUBLIC_GROUNDING_NOTICE,
     "Supported universities across the Gapwise platform:",
-    ...universities.map(
-      (u) =>
-        `- ${u.name} (${u.shortName}): ${u.canonicalUrl} [${u.campuses.length} campus(es): ${u.campuses.map((c) => `${c.name}${c.routable ? "" : " (non-routable)"}`).join(", ")}]`,
+    ...universities.map((u) => {
+      const campusList = u.campuses
+        .map((c) => (typeof c === "string" ? c : `${c.name}${c.routable === false ? " (non-routable)" : ""}`))
+        .join(", ");
+      const urlPart = u.canonicalUrl ? `: ${u.canonicalUrl}` : "";
+      return `- ${u.name} (${u.shortName})${urlPart} [${u.campuses.length} campus(es): ${campusList}]`;
+    }),
+  ];
+  return lines.join("\n");
+}
+
+export function formatPublicCampuses(
+  campuses: Array<{
+    id: string;
+    universityId: string;
+    name: string;
+    shortName: string;
+    routable: boolean;
+  }>,
+  scope?: string,
+) {
+  const lines = [
+    PUBLIC_GROUNDING_NOTICE,
+    scope
+      ? `Supported campuses for ${scope} across Gapwise:`
+      : "Supported campuses across the Gapwise platform:",
+    ...campuses.map(
+      (c) =>
+        `- ${c.name} (${c.shortName}, id: ${c.id}, university: ${c.universityId})${c.routable ? " [routable]" : " [non-routable]"}`,
     ),
   ];
   return lines.join("\n");
@@ -105,6 +134,25 @@ export function formatPublicBuilding(building: PublicBuilding) {
   ].join("\n");
 }
 
+export function formatPublicPlaces(places: PublicPlace[], scope?: string) {
+  const lines = [
+    PUBLIC_GROUNDING_NOTICE,
+    scope
+      ? `Campus places for ${scope} known to Gapwise:`
+      : "Campus places known to Gapwise:",
+  ];
+  if (!places.length) {
+    lines.push(`No campus places found${scope ? ` for ${scope}` : ""}.`);
+    return lines.join("\n");
+  }
+  for (const place of places) {
+    lines.push(
+      `- ${place.name} (${place.id}) — ${place.kind} in ${place.buildingCode}${place.floorOrRoom ? `, ${place.floorOrRoom}` : ""}; amenities: ${place.amenities.length ? place.amenities.join(", ") : "none"}; hours: ${place.hours ? "published" : "unknown"}.`,
+    );
+  }
+  return lines.join("\n");
+}
+
 export function formatPublicPlace(place: PublicPlace, source?: PublicPlaceSource | null) {
   return [
     PUBLIC_GROUNDING_NOTICE,
@@ -118,21 +166,27 @@ export function formatPublicPlace(place: PublicPlace, source?: PublicPlaceSource
   ].join("\n");
 }
 
-export function formatPublicPlaceSearch(value: {
-  query: string | null;
-  results: Array<{
-    score: number;
-    matchReasons: string[];
-    place: PublicPlace;
-    source: PublicPlaceSource | null;
-  }>;
-}) {
+export function formatPublicPlaceSearch(
+  value: {
+    query: string | null;
+    results: Array<{
+      score: number;
+      matchReasons: string[];
+      place: PublicPlace;
+      source: PublicPlaceSource | null;
+    }>;
+  },
+  scope?: string,
+) {
+  const scopePrefix = scope ? `${scope} ` : "";
   const heading = value.query
-    ? `Gapwise UTM place search for “${value.query}”.`
-    : "Gapwise UTM place search using the supplied filters.";
+    ? `Gapwise ${scopePrefix}place search for “${value.query}”.`
+    : `Gapwise ${scopePrefix}place search using the supplied filters.`;
   const lines = [PUBLIC_GROUNDING_NOTICE, heading];
   if (!value.results.length) {
-    lines.push("No source-backed UTM place matched the supplied search and filters.");
+    lines.push(
+      `No source-backed campus place matched the supplied search and filters${scope ? ` for ${scope}` : ""}.`,
+    );
     return lines.join("\n");
   }
   for (const result of value.results) {
@@ -142,7 +196,7 @@ export function formatPublicPlaceSearch(value: {
     );
   }
   lines.push(
-    "Search results are source-backed identities, not a guarantee that a place is open now. Unknown hours are not closed; use get_utm_place for the full provenance and official action links.",
+    "Search results are source-backed identities, not a guarantee that a place is open now. Unknown hours are not closed; use get_campus_place (or get_utm_place) for the full provenance and official action links.",
   );
   return lines.join("\n");
 }

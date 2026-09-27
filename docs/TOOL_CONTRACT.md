@@ -1,6 +1,6 @@
 # MCP tool contract
 
-The live Gapwise AI MCP service registers **25 tools** through one Streamable HTTP endpoint: twelve stateless public campus-intelligence tools and 13 OAuth-protected permissioned student-context tools.
+The live Gapwise AI MCP service registers **30 tools** through one Streamable HTTP endpoint: 17 stateless public campus-intelligence tools (10 canonical multi-university tools and 7 deprecated UTM compatibility aliases) and 13 OAuth-protected permissioned student-context tools.
 
 Tool handlers never accept arbitrary SQL, JavaScript, URLs, graph nodes, or generic execute instructions. Imported/source-backed academic meetings remain read-only.
 
@@ -22,38 +22,53 @@ These tools use public deterministic Gapwise campus data across all 11 supported
 ### `list_supported_universities`
 Lists all supported universities and campus editions across the Gapwise platform with capabilities and status.
 
+### `list_supported_campuses`
+Lists campus models supported across Gapwise, including routability and status, with optional university filter.
+
 ### `list_campus_buildings`
-Lists canonical buildings for any supported university and campus with coverage and metadata.
+Lists canonical buildings for any supported university and campus with coverage and metadata. University parameter is required.
 
 ### `search_campus_buildings`
-Searches canonical buildings across any supported university and campus by code, official name, or alias.
+Searches canonical buildings across any supported university and campus by code, official name, or alias. University parameter is required.
 
 ### `get_campus_building`
-Resolves a canonical building for any supported university and campus; unknown values fail closed.
+Resolves a canonical building for any supported university and campus; unknown values fail closed. University parameter is required.
+
+### `list_campus_places`
+Lists source-backed campus places (study spaces, dining, libraries, recreation, amenities) for any supported university and campus. University parameter is required.
+
+### `search_campus_places`
+Searches source-backed campus places for any supported university and campus by query or filter. University parameter is required.
+
+### `get_campus_place`
+Returns one exact source-backed campus place by canonical id for any supported university and campus. University parameter is required.
 
 ### `route_between_campus_buildings`
-Calculates deterministic building-to-building routes across any supported university and campus with confidence and verification status.
+Calculates deterministic building-to-building routes across any supported university and campus with confidence and verification status. University parameter is required.
 
-### `list_utm_buildings`
-Lists canonical UTM buildings with Gapwise routing/accessibility coverage and provenance.
+### `plan_campus_gap`
+Runs Gapwise's deterministic gap-assessment engine for an explicit free window between two campus buildings for any supported university and campus. University parameter is required.
 
-### `search_utm_buildings`
-Searches canonical buildings by code, name, or alias with deterministic ranking and match reasons.
+### `list_utm_buildings` *(Deprecated compatibility alias)*
+Deprecated: use `list_campus_buildings` with `university='uoft'` and `campus='utm'`. Delegates directly with zero divergent logic.
 
-### `get_utm_building`
-Resolves one canonical UTM building by code, official name, or known alias. Unknown or ambiguous values fail closed.
+### `search_utm_buildings` *(Deprecated compatibility alias)*
+Deprecated: use `search_campus_buildings` with `university='uoft'` and `campus='utm'`. Delegates directly with zero divergent logic.
 
-### `search_utm_places`
-Searches canonical UTM places with bounded results and explicit provenance.
+### `get_utm_building` *(Deprecated compatibility alias)*
+Deprecated: use `get_campus_building` with `university='uoft'` and `campus='utm'`. Delegates directly with zero divergent logic.
 
-### `get_utm_place`
-Returns a canonical place by stable identifier without inventing missing location or access facts.
+### `search_utm_places` *(Deprecated compatibility alias)*
+Deprecated: use `search_campus_places` with `university='uoft'` and `campus='utm'`. Delegates directly with zero divergent logic.
 
-### `route_between_utm_buildings`
-Runs Gapwise's deterministic building-to-building routing engine and preserves route status, verification, time/distance, accessibility state, confidence, and warnings rather than upgrading uncertainty in model prose.
+### `get_utm_place` *(Deprecated compatibility alias)*
+Deprecated: use `get_campus_place` with `university='uoft'` and `campus='utm'`. Delegates directly with zero divergent logic.
 
-### `plan_utm_gap_window`
-Runs Gapwise's deterministic gap-assessment engine for one explicit free window between two UTM buildings using explicitly supplied routing/gap preferences. It does not discover a user's free time or private schedule.
+### `route_between_utm_buildings` *(Deprecated compatibility alias)*
+Deprecated: use `route_between_campus_buildings` with `university='uoft'` and `campus='utm'`. Delegates directly with zero divergent logic.
+
+### `plan_utm_gap_window` *(Deprecated compatibility alias)*
+Deprecated: use `plan_campus_gap` with `university='uoft'` and `campus='utm'`. Delegates directly with zero divergent logic.
 
 ## Private read, status, and planning tools
 
