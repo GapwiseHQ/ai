@@ -10,7 +10,7 @@ type InitializeServer = (server: McpServer) => void | Promise<void>;
 
 /**
  * Gapwise AI's MCP handler factory. It installs the metadata-only tool audit
- * boundary, registers the stateless public UTM campus-intelligence surface,
+ * boundary, registers the stateless public campus-intelligence surface,
  * then delegates to the caller for permissioned/private tool registration.
  *
  * Public campus tools carry no OAuth security metadata and never read private
