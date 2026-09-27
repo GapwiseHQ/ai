@@ -433,11 +433,17 @@ export async function listSupportedCampuses(options?: { university?: string }) {
   });
 }
 
-export async function listCampusBuildings(options: { university: string; campus?: string }) {
+export async function listCampusBuildings(options: {
+  university: string;
+  campus?: string;
+  category?: "academic" | "residence" | "facility";
+}) {
   const { university, campus } = validateUniversityAndCampus(options.university, options.campus);
-  const raw = await fetchJson(
-    `/v1/buildings?university=${encodeURIComponent(university)}&campus=${encodeURIComponent(campus)}`,
-  );
+  let url = `/v1/buildings?university=${encodeURIComponent(university)}&campus=${encodeURIComponent(campus)}`;
+  if (options.category) {
+    url += `&category=${encodeURIComponent(options.category)}`;
+  }
+  const raw = await fetchJson(url);
   const buildings = Array.isArray((raw as any)?.data)
     ? (raw as any).data
     : Array.isArray((raw as any)?.buildings)
@@ -464,6 +470,7 @@ function buildingMatch(query: string, building: PublicBuilding) {
     ["code", building.code, 200, 190, 180, 170],
     ["official name", building.name, 185, 170, 160, 150],
     ...building.aliases.map((alias) => ["alias", alias, 180, 165, 155, 145] as const),
+    ["category", building.category, 120, 110, 100, 90],
   ] as const;
   let score = 0;
   const reasons: string[] = [];
@@ -483,10 +490,19 @@ function buildingMatch(query: string, building: PublicBuilding) {
 
 export async function searchCampusBuildings(
   query: string,
-  options: { university: string; campus?: string; maxResults?: number },
+  options: {
+    university: string;
+    campus?: string;
+    category?: "academic" | "residence" | "facility";
+    maxResults?: number;
+  },
 ) {
   const { university, campus } = validateUniversityAndCampus(options.university, options.campus);
-  const { buildings } = await listCampusBuildings({ university, campus });
+  const { buildings } = await listCampusBuildings({
+    university,
+    campus,
+    category: options.category,
+  });
   const results = buildings
     .map((building) => {
       const match = buildingMatch(query, building);
