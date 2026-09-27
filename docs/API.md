@@ -14,9 +14,9 @@ All browser endpoints require a Supabase bearer token and enforce the configured
 
 ## Remote MCP API
 
-The provider-neutral Streamable HTTP MCP endpoint is `POST /api/mcp` (with protocol-compatible `GET` handling). The same endpoint exposes a stateless public UTM campus-intelligence surface and an OAuth-protected private student-context surface.
+The provider-neutral Streamable HTTP MCP endpoint is `POST /api/mcp` (with protocol-compatible `GET` handling). The same endpoint exposes a stateless public campus-intelligence surface across supported universities and an OAuth-protected private student-context surface.
 
-The complete current tool catalog is maintained in [TOOL_CONTRACT.md](TOOL_CONTRACT.md) and the generated [MCP surface manifest](../contracts/mcp-live-surface.json): seven public reads, twelve permissioned private reads/status/planning tools, and one private write, `update_gap_preferences`.
+The complete current tool catalog is maintained in [TOOL_CONTRACT.md](TOOL_CONTRACT.md) and the generated [MCP surface manifest](../contracts/mcp-live-surface.json): twelve public reads, twelve permissioned private reads/status/planning tools, and one private write, `update_gap_preferences`.
 
 Preference writes remain permission-gated, typed, revision-checked, idempotent queued actions. Imported academic meetings are never writable. Personal Item tools are retired; compatibility schemas do not re-enable them.
 

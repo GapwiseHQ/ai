@@ -177,7 +177,7 @@ The JavaScript/TypeScript SDK is published on npm and JSR; the Python SDK is pub
 | **[`gapwise`](https://github.com/GapwiseHQ/gapwise)** | Core web/PWA, canonical timetable/gap/routing semantics, public API, OpenAPI, and SDK source | [gapwise.ca](https://gapwise.ca) / [api.gapwise.ca](https://api.gapwise.ca/v1) |
 | **[`android`](https://github.com/GapwiseHQ/android)** | Native Kotlin + Jetpack Compose Android client | Android app |
 | **[`ios`](https://github.com/GapwiseHQ/ios)** | Native Swift + SwiftUI iOS client | iOS app |
-| **[`ai`](https://github.com/GapwiseHQ/ai)** | OAuth/MCP layer for public University of Toronto campus intelligence and delegated student context | [ai.gapwise.ca](https://ai.gapwise.ca) |
+| **[`ai`](https://github.com/GapwiseHQ/ai)** | OAuth/MCP layer for public multi-university campus intelligence and delegated student context | [ai.gapwise.ca](https://ai.gapwise.ca) |
 | **[`data`](https://github.com/GapwiseHQ/data)** | Canonical public multi-university campus data, provenance, schemas, validation, and distribution | [data.gapwise.ca](https://data.gapwise.ca) |
 | **[`docs`](https://github.com/GapwiseHQ/docs)** | Canonical public developer documentation | [docs.gapwise.ca](https://docs.gapwise.ca) |
 | **[`status`](https://github.com/GapwiseHQ/status)** | Independent service-health monitoring and incident communication | [status.gapwise.ca](https://status.gapwise.ca) |
@@ -205,7 +205,7 @@ Security-sensitive changes should preserve the documented authorization, encrypt
 
 ## Independent project
 
-> **Gapwise is an independent student software project created by Andrew Muratov. It is not affiliated with, endorsed by, or an official service of the University of Toronto, Carleton University, Toronto Metropolitan University, Queen's University, Wilfrid Laurier University, York University, or McMaster University.**
+> **Gapwise is an independent student software project created by Andrew Muratov. It is not affiliated with, endorsed by, or an official service of the University of Toronto, Carleton University, Toronto Metropolitan University, Queen's University, Wilfrid Laurier University, York University, McMaster University, Western University, University of Guelph, University of Ottawa, or Brock University.**
 
 ## License
 
