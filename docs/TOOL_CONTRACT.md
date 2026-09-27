@@ -1,6 +1,6 @@
 # MCP tool contract
 
-The live Gapwise AI MCP service registers **20 tools** through one Streamable HTTP endpoint: seven stateless public UTM campus-intelligence tools and 13 OAuth-protected permissioned student-context tools.
+The live Gapwise AI MCP service registers **25 tools** through one Streamable HTTP endpoint: twelve stateless public campus-intelligence tools and 13 OAuth-protected permissioned student-context tools.
 
 Tool handlers never accept arbitrary SQL, JavaScript, URLs, graph nodes, or generic execute instructions. Imported/source-backed academic meetings remain read-only.
 
@@ -17,7 +17,22 @@ MCP text `content` is intentionally compact. Exact recurrence, exclusions, rich 
 
 ## Public campus tools
 
-These tools use public deterministic Gapwise campus data. They do not authenticate a Gapwise account and do not read a student's private timetable, friends, precise location, or private sync state.
+These tools use public deterministic Gapwise campus data across all 11 supported universities. They do not authenticate a Gapwise account and do not read a student's private timetable, friends, precise location, or private sync state.
+
+### `list_supported_universities`
+Lists all supported universities and campus editions across the Gapwise platform with capabilities and status.
+
+### `list_campus_buildings`
+Lists canonical buildings for any supported university and campus with coverage and metadata.
+
+### `search_campus_buildings`
+Searches canonical buildings across any supported university and campus by code, official name, or alias.
+
+### `get_campus_building`
+Resolves a canonical building for any supported university and campus; unknown values fail closed.
+
+### `route_between_campus_buildings`
+Calculates deterministic building-to-building routes across any supported university and campus with confidence and verification status.
 
 ### `list_utm_buildings`
 Lists canonical UTM buildings with Gapwise routing/accessibility coverage and provenance.

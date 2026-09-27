@@ -97,7 +97,7 @@ For the exact behavioral contract, see [`docs/TOOL_CONTRACT.md`](docs/TOOL_CONTR
 ## Architecture and trust boundary
 
 ```text
-                         public UTM campus request
+                         public campus request
 MCP client ------------------------------------------+
                                                      |
                                                      v
