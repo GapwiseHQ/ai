@@ -31,6 +31,7 @@ vi.mock("@/src/db/supabase-rest", () => ({
 }));
 
 import {
+  pendingActions,
   publishSnapshot,
   queueAction,
   readSnapshot,
@@ -356,6 +357,73 @@ describe("delegation failure boundaries", () => {
     expect(db.insertDelegation).toHaveBeenCalledWith(
       caller,
       expect.objectContaining({ user_id: caller.userId, enabled: true, revision: 1 }),
+    );
+  });
+
+  it("quarantines malformed queued actions per item without failing valid actions", async () => {
+    const validAction = {
+      schemaVersion: 1 as const,
+      kind: "update_gap_preferences" as const,
+      expectedRevision: 4,
+      patch: { riskTolerance: "low" as const },
+    };
+    const encryptedValid = encryptJson(TEST_AI_KEY, "action", caller.userId, 4, validAction);
+
+    const rows = [
+      {
+        id: "action-valid-1",
+        user_id: caller.userId,
+        crypto_version: 1,
+        action_schema_version: 1,
+        expected_revision: 4,
+        action_ciphertext: encryptedValid.ciphertext,
+        action_nonce: encryptedValid.nonce,
+        status: "queued",
+        created_at: "2026-08-30T00:00:00.000Z",
+      },
+      {
+        id: "action-corrupt-crypto",
+        user_id: caller.userId,
+        crypto_version: 2,
+        action_schema_version: 1,
+        expected_revision: 4,
+        action_ciphertext: "deadbeef",
+        action_nonce: "deadbeef",
+        status: "queued",
+        created_at: "2026-08-30T00:01:00.000Z",
+      },
+      {
+        id: "action-bad-ciphertext",
+        user_id: caller.userId,
+        crypto_version: 1,
+        action_schema_version: 1,
+        expected_revision: 4,
+        action_ciphertext: "badciphertext",
+        action_nonce: encryptedValid.nonce,
+        status: "queued",
+        created_at: "2026-08-30T00:02:00.000Z",
+      },
+    ];
+
+    db.listQueuedActions.mockResolvedValue(rows);
+    db.completeActionRow.mockResolvedValue({ id: "mock" });
+
+    const result = await pendingActions(caller);
+    expect(result).toHaveLength(1);
+    expect(result[0]!.id).toBe("action-valid-1");
+    expect(result[0]!.action).toEqual(validAction);
+
+    expect(db.completeActionRow).toHaveBeenCalledWith(
+      caller,
+      "action-corrupt-crypto",
+      "rejected",
+      "unsupported_version",
+    );
+    expect(db.completeActionRow).toHaveBeenCalledWith(
+      caller,
+      "action-bad-ciphertext",
+      "rejected",
+      "decryption_failed",
     );
   });
 });

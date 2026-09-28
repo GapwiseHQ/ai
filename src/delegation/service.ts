@@ -273,9 +273,13 @@ export async function queueAction(
 export async function pendingActions(caller: VerifiedCaller) {
   const rows = await listQueuedActions(caller, 50);
   const config = getRuntimeConfig();
-  return rows.map((row) => {
+  const validActions = [];
+  for (const row of rows) {
     if (row.crypto_version !== 1 || row.action_schema_version !== 1) {
-      throw new DelegationError("invalid_data", "Stored AI action version is unsupported.");
+      try {
+        await completeActionRow(caller, row.id, "rejected", "unsupported_version");
+      } catch {}
+      continue;
     }
     let value: unknown;
     try {
@@ -284,18 +288,25 @@ export async function pendingActions(caller: VerifiedCaller) {
         nonce: row.action_nonce,
       });
     } catch {
-      throw new DelegationError("invalid_data", "Stored AI action could not be authenticated.");
+      try {
+        await completeActionRow(caller, row.id, "rejected", "decryption_failed");
+      } catch {}
+      continue;
     }
     const parsed = AiActionSchema.safeParse(value);
     if (!parsed.success || parsed.data.expectedRevision !== row.expected_revision) {
-      throw new DelegationError("invalid_data", "Stored AI action is inconsistent.");
+      try {
+        await completeActionRow(caller, row.id, "rejected", "malformed_payload");
+      } catch {}
+      continue;
     }
-    return {
+    validActions.push({
       id: row.id,
       createdAt: row.created_at,
       action: parsed.data,
-    };
-  });
+    });
+  }
+  return validActions;
 }
 
 export async function completeAction(caller: VerifiedCaller, actionId: string, value: unknown) {
