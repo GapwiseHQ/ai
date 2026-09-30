@@ -24,7 +24,7 @@
 
 ## What Gapwise AI is
 
-Gapwise AI is the provider-neutral AI integration layer of **Gapwise**, a free and open-source timetable and campus-intelligence platform for university students across 11 Canadian universities (University of Toronto, Carleton University, Toronto Metropolitan University, Queen's University, Wilfrid Laurier University, York University, McMaster University, Western University, University of Guelph, University of Ottawa, and Brock University).
+Gapwise AI is the provider-neutral AI integration layer of **Gapwise**, a free and open-source timetable and campus-intelligence platform for university students across 13 Canadian universities, including the University of British Columbia and University of Waterloo editions.
 
 The main [`gapwise`](https://github.com/GapwiseHQ/gapwise) platform owns canonical student state and deterministic timetable/campus calculations. [`android`](https://github.com/GapwiseHQ/android) and [`ios`](https://github.com/GapwiseHQ/ios) provide native clients. Gapwise AI exposes a narrow remote MCP interface to bounded context rather than becoming a second timetable, routing, or planning engine.
 
@@ -187,7 +187,7 @@ The JavaScript/TypeScript SDK is published on npm and JSR; the Python SDK is pub
 | **[`docs`](https://github.com/GapwiseHQ/docs)** | Canonical public developer documentation | [docs.gapwise.ca](https://docs.gapwise.ca) |
 | **[`status`](https://github.com/GapwiseHQ/status)** | Independent service-health monitoring and incident communication | [status.gapwise.ca](https://status.gapwise.ca) |
 
-All seven first-party product repositories are owned by the **Gapwise** GitHub organization (`GapwiseHQ`). Organization-wide GitHub defaults live in [`.github`](https://github.com/GapwiseHQ/.github). Andrew Muratov remains the creator and primary maintainer.
+All first-party product repositories are owned by the **Gapwise** GitHub organization (`GapwiseHQ`). Organization-wide GitHub defaults live in [`.github`](https://github.com/GapwiseHQ/.github). Andrew Muratov remains the creator and primary maintainer.
 
 ---
 

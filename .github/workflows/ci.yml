@@ -32,6 +32,16 @@ jobs:
         run: npm run check:cost-model
       - name: Install dependencies
         run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Check out the canonical university registry
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: GapwiseHQ/gapwise
+          ref: main
+          path: .canonical-gapwise
+          sparse-checkout: universities.json
+          persist-credentials: false
+      - name: Verify supported university parity
+        run: npm run check:universities
       - name: Verify generated MCP contract
         run: npm run contract:check
       - name: Typecheck

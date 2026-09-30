@@ -4,12 +4,12 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Gapwise AI",
-  description: "Permissioned, provider-neutral MCP access to Gapwise campus intelligence and explicitly delegated student context across 11 Canadian universities.",
+  description: "Permissioned, provider-neutral MCP access to Gapwise campus intelligence and explicitly delegated student context across 13 Canadian universities.",
   icons: { icon: "/favicon.svg" },
   robots: { index: false, follow: false },
   openGraph: {
     title: "Gapwise AI",
-    description: "Permissioned, provider-neutral MCP access to Gapwise campus intelligence and explicitly delegated student context across 11 Canadian universities.",
+    description: "Permissioned, provider-neutral MCP access to Gapwise campus intelligence and explicitly delegated student context across 13 Canadian universities.",
     url: "https://ai.gapwise.ca",
     siteName: "Gapwise AI",
     type: "website",
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Gapwise AI",
-    description: "Permissioned, provider-neutral MCP access to Gapwise campus intelligence and explicitly delegated student context across 11 Canadian universities.",
+    description: "Permissioned, provider-neutral MCP access to Gapwise campus intelligence and explicitly delegated student context across 13 Canadian universities.",
     images: ["https://ai.gapwise.ca/og-card.png"],
   },
 };
