@@ -1,39 +1,18 @@
 import { z } from "zod";
 import { getRuntimeConfig } from "@/src/config";
 import { GapPreferencesSchema, TermSchema, WeekdaySchema } from "@/src/domain/schemas";
+import universityRegistry from "@/contracts/supported-universities.json" with { type: "json" };
 
-export const CANONICAL_UNIVERSITIES = [
-  "uoft",
-  "carleton",
-  "tmu",
-  "queens",
-  "laurier",
-  "york",
-  "mcmaster",
-  "western",
-  "guelph",
-  "uottawa",
-  "brock",
-] as const;
+export const CANONICAL_UNIVERSITIES = Object.keys(universityRegistry) as Array<
+  keyof typeof universityRegistry
+>;
 
 export type CanonicalUniversity = (typeof CANONICAL_UNIVERSITIES)[number];
 
 export const CANONICAL_UNIVERSITY_CAMPUSES: Record<
   string,
   { defaultCampus: string; campuses: readonly string[] }
-> = {
-  uoft: { defaultCampus: "utm", campuses: ["utm", "utsg", "utsc"] },
-  carleton: { defaultCampus: "carleton", campuses: ["carleton"] },
-  tmu: { defaultCampus: "tmu", campuses: ["tmu"] },
-  queens: { defaultCampus: "queens", campuses: ["queens"] },
-  laurier: { defaultCampus: "waterloo", campuses: ["waterloo"] },
-  york: { defaultCampus: "keele", campuses: ["keele"] },
-  mcmaster: { defaultCampus: "mcmaster", campuses: ["mcmaster"] },
-  western: { defaultCampus: "western", campuses: ["western"] },
-  guelph: { defaultCampus: "guelph", campuses: ["guelph"] },
-  uottawa: { defaultCampus: "uottawa", campuses: ["uottawa"] },
-  brock: { defaultCampus: "brock", campuses: ["brock"] },
-};
+> = universityRegistry;
 
 const VerificationStatusSchema = z.enum(["verified", "inferred", "unknown"]);
 const AccessibilitySchema = z.enum(["accessible", "not_accessible", "unknown"]);

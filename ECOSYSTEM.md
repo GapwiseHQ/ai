@@ -2,7 +2,7 @@
 
 `ai` is the OAuth/MCP trust boundary of the seven-repository Gapwise product ecosystem. It exposes stateless public multi-university campus intelligence plus explicitly delegated, minimized student context and bounded actions to compatible AI clients. It does not replace deterministic Gapwise product logic, the public campus API, or the public SDKs.
 
-All seven first-party product repositories are owned by the **Gapwise** GitHub organization (`GapwiseHQ`). Organization-wide GitHub defaults live in the separate `.github` repository. Andrew Muratov remains the creator and primary maintainer.
+All first-party product repositories are owned by the **Gapwise** GitHub organization (`GapwiseHQ`). Organization-wide GitHub defaults live in the separate `.github` repository. Andrew Muratov remains the creator and primary maintainer.
 
 ## Connected surfaces
 
@@ -23,7 +23,7 @@ All seven first-party product repositories are owned by the **Gapwise** GitHub o
 
 ## Product scope
 
-Gapwise delegated timetable context supports all supported institutions and campuses. The stateless public tools expose multi-university discovery, building, and routing queries across all 11 supported universities (13 campus models), with legacy UTM-specific tools providing dedicated UTM place catalog and gap-window planning tools. AI must preserve institution and campus identity and must not extrapolate campus-specific place or routing tools beyond their supported coverage.
+Gapwise delegated timetable context supports all supported institutions and campuses. The stateless public tools expose multi-university discovery, building, and routing queries across all 13 supported universities (15 campus models), with legacy UTM-specific tools providing dedicated UTM place catalog and gap-window planning tools. AI must preserve institution and campus identity and must not extrapolate campus-specific place or routing tools beyond their supported coverage.
 
 ## Public SDK state
 

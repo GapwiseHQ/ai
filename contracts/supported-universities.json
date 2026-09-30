@@ -1,0 +1,15 @@
+{
+  "uoft": { "defaultCampus": "utm", "campuses": ["utm", "utsg", "utsc"] },
+  "carleton": { "defaultCampus": "carleton", "campuses": ["carleton"] },
+  "tmu": { "defaultCampus": "tmu", "campuses": ["tmu"] },
+  "queens": { "defaultCampus": "queens", "campuses": ["queens"] },
+  "laurier": { "defaultCampus": "waterloo", "campuses": ["waterloo"] },
+  "york": { "defaultCampus": "keele", "campuses": ["keele"] },
+  "mcmaster": { "defaultCampus": "mcmaster", "campuses": ["mcmaster"] },
+  "western": { "defaultCampus": "western", "campuses": ["western"] },
+  "guelph": { "defaultCampus": "guelph", "campuses": ["guelph"] },
+  "uottawa": { "defaultCampus": "uottawa", "campuses": ["uottawa"] },
+  "brock": { "defaultCampus": "brock", "campuses": ["brock"] },
+  "ubc": { "defaultCampus": "ubc-vancouver", "campuses": ["ubc-vancouver"] },
+  "waterloo": { "defaultCampus": "waterloo-main", "campuses": ["waterloo-main"] }
+}

@@ -25,8 +25,9 @@
     "test": "vitest run",
     "scan:secrets": "node scripts/scan-secrets.mjs",
     "check:cost-model": "node scripts/check-cost-model.mjs",
+    "check:universities": "node scripts/check-university-registry.mjs",
     "audit:production": "node scripts/audit-production-dependencies.mjs",
-    "check": "npm run scan:secrets && npm run check:cost-model && npm run contract:check && npm run typecheck && npm test && npm run build",
+    "check": "npm run scan:secrets && npm run check:cost-model && npm run check:universities && npm run contract:check && npm run typecheck && npm test && npm run build",
     "contract:generate": "node scripts/mcp-surface-contract.mjs --write",
     "contract:check": "node scripts/mcp-surface-contract.mjs --check"
   },
