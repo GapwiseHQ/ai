@@ -11,5 +11,6 @@
   "uottawa": { "defaultCampus": "uottawa", "campuses": ["uottawa"] },
   "brock": { "defaultCampus": "brock", "campuses": ["brock"] },
   "ubc": { "defaultCampus": "ubc-vancouver", "campuses": ["ubc-vancouver"] },
-  "waterloo": { "defaultCampus": "waterloo-main", "campuses": ["waterloo-main"] }
+  "waterloo": { "defaultCampus": "waterloo-main", "campuses": ["waterloo-main"] },
+  "mcgill": { "defaultCampus": "mcgill-downtown", "campuses": ["mcgill-downtown"] }
 }

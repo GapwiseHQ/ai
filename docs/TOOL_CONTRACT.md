@@ -17,7 +17,7 @@ MCP text `content` is intentionally compact. Exact recurrence, exclusions, rich 
 
 ## Public campus tools
 
-These tools use public deterministic Gapwise campus data across all 13 supported universities and 15 campus models. They do not authenticate a Gapwise account and do not read a student's private timetable, friends, precise location, or private sync state.
+These tools use public deterministic Gapwise campus data across all 14 supported universities and 16 campus models. They do not authenticate a Gapwise account and do not read a student's private timetable, friends, precise location, or private sync state.
 
 ### `list_supported_universities`
 Lists all supported universities and campus editions across the Gapwise platform with capabilities and status.
