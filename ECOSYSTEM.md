@@ -23,7 +23,7 @@ All first-party product repositories are owned by the **Gapwise** GitHub organiz
 
 ## Product scope
 
-Gapwise delegated timetable context supports all supported institutions and campuses. The stateless public tools expose multi-university discovery, building, and routing queries across all 13 supported universities (15 campus models), with legacy UTM-specific tools providing dedicated UTM place catalog and gap-window planning tools. AI must preserve institution and campus identity and must not extrapolate campus-specific place or routing tools beyond their supported coverage.
+Gapwise delegated timetable context supports all supported institutions and campuses. The stateless public tools expose multi-university discovery, building, and routing queries across all 27 supported universities (67 campuses), with legacy UTM-specific tools providing dedicated UTM place catalog and gap-window planning tools. AI must preserve institution and campus identity and must not extrapolate campus-specific place or routing tools beyond their supported coverage.
 
 ## Public SDK state
 

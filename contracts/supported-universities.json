@@ -1,16 +1,204 @@
 {
-  "uoft": { "defaultCampus": "utm", "campuses": ["utm", "utsg", "utsc"] },
-  "carleton": { "defaultCampus": "carleton", "campuses": ["carleton"] },
-  "tmu": { "defaultCampus": "tmu", "campuses": ["tmu"] },
-  "queens": { "defaultCampus": "queens", "campuses": ["queens"] },
-  "laurier": { "defaultCampus": "waterloo", "campuses": ["waterloo"] },
-  "york": { "defaultCampus": "keele", "campuses": ["keele"] },
-  "mcmaster": { "defaultCampus": "mcmaster", "campuses": ["mcmaster"] },
-  "western": { "defaultCampus": "western", "campuses": ["western"] },
-  "guelph": { "defaultCampus": "guelph", "campuses": ["guelph"] },
-  "uottawa": { "defaultCampus": "uottawa", "campuses": ["uottawa"] },
-  "brock": { "defaultCampus": "brock", "campuses": ["brock"] },
-  "ubc": { "defaultCampus": "ubc-vancouver", "campuses": ["ubc-vancouver"] },
-  "waterloo": { "defaultCampus": "waterloo-main", "campuses": ["waterloo-main"] },
-  "mcgill": { "defaultCampus": "mcgill-downtown", "campuses": ["mcgill-downtown"] }
+  "uoft": {
+    "defaultCampus": "utm",
+    "campuses": [
+      "utm",
+      "utsg",
+      "utsc"
+    ]
+  },
+  "carleton": {
+    "defaultCampus": "carleton",
+    "campuses": [
+      "carleton",
+      "carleton-dominion-chalmers"
+    ]
+  },
+  "tmu": {
+    "defaultCampus": "tmu",
+    "campuses": [
+      "tmu",
+      "tmu-brampton"
+    ]
+  },
+  "queens": {
+    "defaultCampus": "queens",
+    "campuses": [
+      "queens",
+      "queens-west"
+    ]
+  },
+  "laurier": {
+    "defaultCampus": "waterloo",
+    "campuses": [
+      "waterloo",
+      "laurier-brantford",
+      "laurier-milton"
+    ]
+  },
+  "york": {
+    "defaultCampus": "keele",
+    "campuses": [
+      "keele",
+      "glendon",
+      "markham"
+    ]
+  },
+  "mcmaster": {
+    "defaultCampus": "mcmaster",
+    "campuses": [
+      "mcmaster",
+      "mcmaster-burlington"
+    ]
+  },
+  "western": {
+    "defaultCampus": "western",
+    "campuses": [
+      "western",
+      "western-huron",
+      "western-kings"
+    ]
+  },
+  "guelph": {
+    "defaultCampus": "guelph",
+    "campuses": [
+      "guelph",
+      "guelph-ridgetown",
+      "guelph-humber"
+    ]
+  },
+  "uottawa": {
+    "defaultCampus": "uottawa",
+    "campuses": [
+      "uottawa",
+      "uottawa-alta-vista"
+    ]
+  },
+  "brock": {
+    "defaultCampus": "brock",
+    "campuses": [
+      "brock",
+      "brock-miw"
+    ]
+  },
+  "ubc": {
+    "defaultCampus": "ubc-vancouver",
+    "campuses": [
+      "ubc-vancouver",
+      "ubc-okanagan"
+    ]
+  },
+  "waterloo": {
+    "defaultCampus": "waterloo-main",
+    "campuses": [
+      "waterloo-main",
+      "waterloo-cambridge",
+      "waterloo-kitchener",
+      "waterloo-stratford"
+    ]
+  },
+  "mcgill": {
+    "defaultCampus": "mcgill-downtown",
+    "campuses": [
+      "mcgill-downtown",
+      "mcgill-macdonald"
+    ]
+  },
+  "cmu": {
+    "defaultCampus": "cmu-pittsburgh",
+    "campuses": [
+      "cmu-pittsburgh",
+      "cmu-silicon-valley"
+    ]
+  },
+  "ucberkeley": {
+    "defaultCampus": "ucberkeley-main",
+    "campuses": [
+      "ucberkeley-main",
+      "ucberkeley-richmond"
+    ]
+  },
+  "nyu": {
+    "defaultCampus": "nyu-washington-square",
+    "campuses": [
+      "nyu-washington-square",
+      "nyu-brooklyn"
+    ]
+  },
+  "mit": {
+    "defaultCampus": "mit-cambridge",
+    "campuses": [
+      "mit-cambridge",
+      "mit-lincoln-lab"
+    ]
+  },
+  "stanford": {
+    "defaultCampus": "stanford-main",
+    "campuses": [
+      "stanford-main",
+      "stanford-redwood-city"
+    ]
+  },
+  "upenn": {
+    "defaultCampus": "upenn-philadelphia",
+    "campuses": [
+      "upenn-philadelphia",
+      "upenn-pennovation",
+      "upenn-new-bolton"
+    ]
+  },
+  "cornell": {
+    "defaultCampus": "cornell-ithaca",
+    "campuses": [
+      "cornell-ithaca",
+      "cornell-tech",
+      "cornell-weill"
+    ]
+  },
+  "dartmouth": {
+    "defaultCampus": "dartmouth-hanover",
+    "campuses": [
+      "dartmouth-hanover",
+      "dartmouth-lebanon"
+    ]
+  },
+  "brown": {
+    "defaultCampus": "brown-providence",
+    "campuses": [
+      "brown-providence",
+      "brown-jewelry-district"
+    ]
+  },
+  "columbia": {
+    "defaultCampus": "columbia-morningside",
+    "campuses": [
+      "columbia-morningside",
+      "columbia-manhattanville",
+      "columbia-cuimc"
+    ]
+  },
+  "princeton": {
+    "defaultCampus": "princeton-main",
+    "campuses": [
+      "princeton-main",
+      "princeton-forrestal",
+      "princeton-meadows"
+    ]
+  },
+  "yale": {
+    "defaultCampus": "yale-new-haven",
+    "campuses": [
+      "yale-new-haven",
+      "yale-medical",
+      "yale-west"
+    ]
+  },
+  "harvard": {
+    "defaultCampus": "harvard-cambridge",
+    "campuses": [
+      "harvard-cambridge",
+      "harvard-allston",
+      "harvard-longwood"
+    ]
+  }
 }
