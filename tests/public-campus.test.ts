@@ -160,8 +160,8 @@ describe("public campus intelligence adapter", () => {
     });
 
     it("rejects unsupported universities with a helpful error listing valid options", () => {
-      expect(() => validateUniversityAndCampus("harvard")).toThrow(
-        'Unsupported university "harvard"',
+      expect(() => validateUniversityAndCampus("unknown-university")).toThrow(
+        'Unsupported university "unknown-university"',
       );
       expect(validateUniversityAndCampus("mcgill")).toEqual({
         university: "mcgill",
@@ -211,8 +211,8 @@ describe("public campus intelligence adapter", () => {
   });
 
   describe("canonical multi-university programmatic matrix", () => {
-    it("covers all 14 supported universities in the canonical registry", () => {
-      expect(CANONICAL_UNIVERSITIES).toHaveLength(14);
+    it("covers all 27 supported universities in the canonical registry", () => {
+      expect(CANONICAL_UNIVERSITIES).toHaveLength(27);
       for (const u of CANONICAL_UNIVERSITIES) {
         const config = CANONICAL_UNIVERSITY_CAMPUSES[u];
         expect(config).toBeDefined();
