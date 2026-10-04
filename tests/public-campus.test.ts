@@ -211,8 +211,8 @@ describe("public campus intelligence adapter", () => {
   });
 
   describe("canonical multi-university programmatic matrix", () => {
-    it("covers all 27 supported universities in the canonical registry", () => {
-      expect(CANONICAL_UNIVERSITIES).toHaveLength(27);
+    it("covers all 28 supported universities in the canonical registry", () => {
+      expect(CANONICAL_UNIVERSITIES).toHaveLength(28);
       for (const u of CANONICAL_UNIVERSITIES) {
         const config = CANONICAL_UNIVERSITY_CAMPUSES[u];
         expect(config).toBeDefined();

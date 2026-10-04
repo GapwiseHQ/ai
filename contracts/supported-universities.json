@@ -200,5 +200,17 @@
       "harvard-allston",
       "harvard-longwood"
     ]
+  },
+  "sorbonne": {
+    "defaultCampus": "sorbonne-pierre-et-marie-curie",
+    "campuses": [
+      "sorbonne-pierre-et-marie-curie",
+      "sorbonne-sorbonne",
+      "sorbonne-pitie-salpetriere",
+      "sorbonne-saint-antoine",
+      "sorbonne-cordeliers",
+      "sorbonne-clignancourt",
+      "sorbonne-malesherbes"
+    ]
   }
 }
