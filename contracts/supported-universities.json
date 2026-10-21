@@ -212,5 +212,71 @@
       "sorbonne-clignancourt",
       "sorbonne-malesherbes"
     ]
+  },
+  "oxford": {
+    "defaultCampus": "oxford",
+    "campuses": [
+      "oxford"
+    ]
+  },
+  "cambridge": {
+    "defaultCampus": "cambridge",
+    "campuses": [
+      "cambridge"
+    ]
+  },
+  "imperial": {
+    "defaultCampus": "imperial-south-kensington",
+    "campuses": [
+      "imperial-south-kensington",
+      "imperial-white-city"
+    ]
+  },
+  "ethz": {
+    "defaultCampus": "ethz-zentrum",
+    "campuses": [
+      "ethz-zentrum",
+      "ethz-hoenggerberg"
+    ]
+  },
+  "caltech": {
+    "defaultCampus": "caltech",
+    "campuses": [
+      "caltech"
+    ]
+  },
+  "jhu": {
+    "defaultCampus": "jhu-homewood",
+    "campuses": [
+      "jhu-homewood",
+      "jhu-east-baltimore"
+    ]
+  },
+  "epfl": {
+    "defaultCampus": "epfl",
+    "campuses": [
+      "epfl"
+    ]
+  },
+  "ucl": {
+    "defaultCampus": "ucl-bloomsbury",
+    "campuses": [
+      "ucl-bloomsbury",
+      "ucl-east"
+    ]
+  },
+  "utokyo": {
+    "defaultCampus": "utokyo-hongo",
+    "campuses": [
+      "utokyo-hongo",
+      "utokyo-komaba",
+      "utokyo-kashiwa"
+    ]
+  },
+  "tsinghua": {
+    "defaultCampus": "tsinghua",
+    "campuses": [
+      "tsinghua"
+    ]
   }
 }
